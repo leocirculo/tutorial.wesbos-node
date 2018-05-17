@@ -28,6 +28,22 @@ exports.addStore = (req, res) => {
 
 exports.upload = multer(multerOptions).single('photo');
 
+exports.resize = async (req, res, next) => {
+  // check if theres no new file
+  if (!req.file) next();
+
+  // Rename image
+  const extension = req.file.mimetype.split('/')[1];
+  req.body.photo = `${uuid.v4()}.${extension}`;
+  console.log(req.body.photo);
+  // Resize image
+  const photo = await jimp.read(req.file.buffer);
+  await photo.resize(800, jimp.AUTO);
+  await photo.write(`./public/uploads/${req.body.photo}`);
+  // After saving
+  next();
+};
+
 exports.createStore = async (req, res) => {
   const store = await (new Store(req.body)).save();  
   req.flash('success', `Successfully Created <strong>${store.name}</strong>. Care to leave a review?`);
