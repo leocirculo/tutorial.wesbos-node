@@ -47,7 +47,7 @@ exports.resize = async (req, res, next) => {
 exports.createStore = async (req, res) => {
   const store = await (new Store(req.body)).save();  
   req.flash('success', `Successfully Created <strong>${store.name}</strong>. Care to leave a review?`);
-  res.redirect(`/store/${store.slug}`);
+  res.redirect(`/stores/${store.slug}`);
 };
 
 exports.getStores = async (req, res) => {
@@ -84,3 +84,12 @@ exports.updateStore = async (req, res) => {
   res.redirect(`/stores/${store._id}/edit`);
 };
 
+exports.getStoreBySlug = async (req, res, next) => {
+  const store = await Store.findOne({ slug: req.params.slug });
+  if (!store) return next();
+  res.render('store', { store, title: store.name });
+};
+
+exports.getStoresByTag = async (req,res) => {
+  const stores = await Store.getTagsList();
+}
