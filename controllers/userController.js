@@ -39,6 +39,19 @@ exports.register = async(req, res, next) => {
     name: req.body.name,
   });
   const registerWithPromise = promisify(User.register, User);
-  await registerWithPromise(user, req.body.password);
-  next();
+  try {
+    await registerWithPromise(user, req.body.password);
+    next();
+  } catch (error) {
+    req.flash('error', [error.message]);
+    res.render('register', {
+      title: 'Register',
+      body: req.body,
+      flashes: req.flash()
+    });
+  }
 };
+
+exports.account = (req, res) => {
+  res.render('account', { title: 'Edit Your Account' });
+}

@@ -6,9 +6,9 @@ const authController = require('./../controllers/authController');
 const { catchErrors } = require('../handlers/errorHandlers');
 
 // Do work here
-router.get('/', storeController.homePage);
+router.get('/', catchErrors(storeController.getStores));
 router.get('/stores', catchErrors(storeController.getStores));
-router.get('/add', storeController.addStore);
+router.get('/add', authController.isLoggedIn, storeController.addStore);
 router.get('/stores/:id/edit', catchErrors(storeController.editStore));
 router.get('/stores/:slug', catchErrors(storeController.getStoreBySlug));
 // Posts
@@ -27,16 +27,21 @@ router.get('/tags', catchErrors(storeController.getStoresByTag));
 router.get('/tags/:tag', catchErrors(storeController.getStoresByTag));
 
 router.get('/login', userController.loginForm);
-router.get('/register', userController.registerForm);
+router.post('/login', authController.login);
 
+router.get('/register', userController.registerForm);
 router.post('/register', 
   // 1. validate registration
   userController.validateRegister,
+  // 2. register the user
   userController.register,
+  // 3. we need to log them in
   authController.login,
 );
-// 2. register the user
-// 3. we need to log them in
+
+router.get('/logout', authController.logout);
+
+router.get('/account', authController.isLoggedIn, userController.account);
 
 
 module.exports = router;
